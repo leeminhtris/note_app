@@ -163,7 +163,7 @@ class _$NoteDao extends NoteDao {
   }
 
   @override
-  Future<List<Note>> findByTitle(String title) async {
+  Future<List<Note>> search(String title) async {
     return _queryAdapter.queryList('SELECT * FROM Note WHERE title LIKE ?1',
         mapper: (Map<String, Object?> row) => Note(
             id: row['id'] as int?,

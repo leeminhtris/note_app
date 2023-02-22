@@ -26,9 +26,9 @@ class NoteManager {
     return noteDao.deleteNote(note);
   }
 
-  Future<List<Note>> findByTitle(String title) async {
+  Future<List<Note>> search(String title) async {
     final noteDao = await dbHelper.getNoteDao();
-    return noteDao.findByTitle(title);
+    return noteDao.search(title);
   }
 
 }

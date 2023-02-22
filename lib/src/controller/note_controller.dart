@@ -21,6 +21,6 @@ class NoteController {
   }
 
   Future<List<Note>> search(String title) {
-    return noteManager.findByTitle(title);
+    return noteManager.search(title);
   }
 }

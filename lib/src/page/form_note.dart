@@ -46,11 +46,11 @@ class _FormNoteState extends State<FormNote> {
                   maxLines: 1,
                   decoration: const InputDecoration(hintText: "Tiêu đề"),
                   onSaved: (value) {
-                    if(widget.selectedNote != null){
+                    if (widget.selectedNote != null) {
                       setState(() {
                         widget.selectedNote!.title = value;
                       });
-                    } else{
+                    } else {
                       setState(() {
                         note.title = value;
                       });
@@ -62,11 +62,11 @@ class _FormNoteState extends State<FormNote> {
                   maxLines: null,
                   decoration: const InputDecoration(hintText: "Nội dung"),
                   onSaved: (value) {
-                    if(widget.selectedNote != null){
+                    if (widget.selectedNote != null) {
                       setState(() {
                         widget.selectedNote!.description = value;
                       });
-                    } else{
+                    } else {
                       setState(() {
                         note.description = value;
                       });
@@ -83,11 +83,12 @@ class _FormNoteState extends State<FormNote> {
     final form = formKey.currentState;
     //khi form gọi hàm save thì tất cả các TextFormField gọi hàm save
     form?.save();
-
-    if(widget.selectedNote != null){
+    if (widget.selectedNote != null) {
       noteController.updateNote(widget.selectedNote!);
-    } else{
+      messageSackBar(context, "Sửa thành công");
+    } else {
       noteController.addNote(note);
+      messageSackBar(context, "Thêm thành công");
       print('Note==========>$note');
     }
     Navigator.pop(context);

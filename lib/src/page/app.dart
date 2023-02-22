@@ -12,30 +12,37 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
   TextEditingController searchText = TextEditingController();
   NoteController noteController = NoteController();
-
-  bool isLoading = false;
   List<Note> notes = [];
   List<Note> filteredList = [];
 
-  void refreshNotes() async {
-    final data = await noteController.getALlNotes();
-    setState(() {
-      if (data != null) {
-        notes = data;
-        print(notes.toString());
-        isLoading = false;
-      } else {
-        throw Exception("Lỗi data == null");
-      }
-    });
+  // void refreshNotes() async {
+  //   final data = await noteController.getALlNotes();
+  //   setState(() {
+  //     if (data != null) {
+  //       notes = data;
+  //       print(notes.toString());
+  //       isLoading = false;
+  //     } else {
+  //       throw Exception("Lỗi data == null");
+  //     }
+  //   });
+  // }
+
+  void refresh() async {
+    var data = await noteController.getALlNotes();
+    if(data != null) {
+      notes = data;
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    refreshNotes();
+    refresh();
+    // refreshNotes();
   }
 
   void filterList(value) {
@@ -71,62 +78,72 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               onChanged: (value) {
-                filterList(value);
+                setState(() {
+                  filterList(value);
+                });
                 print(value);
               },
             ),
             const SizedBox(height: 10),
-            // FutureBuilder(
-            //        future: noteController.getALlNotes(),
-            //        builder: (BuildContext context,
-            //            AsyncSnapshot<dynamic> snapshot) {
-            //          if (snapshot.data) {
-            //            if (!isLoading) {
-            //              notes = snapshot.data;
-            //              filteredList = notes;
-            //              isLoading = !isLoading;
-            //            }
-            //          }
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: notes.length,
-              itemBuilder: (context, index) => Card(
-                color: Colors.orange[200],
-                margin: const EdgeInsets.all(10),
-                child: ListTile(
-                    title: Text(notes[index].title!),
-                    subtitle: Text(notes[index].description!),
-                    trailing: SizedBox(
-                      width: 100,
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => FormNote(
-                                          selectedNote: notes[index])));
-                              print("sửa");
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              noteController.deleteNote(notes[index]);
-                              messageSackBar(context, "Xoá thành công");
-                              refreshNotes();
-                            },
-                          ),
-                        ],
-                      ),
-                    )),
-              ),
-              // );
-              // },
-            )
+            FutureBuilder(
+                future: noteController.getALlNotes(),
+                builder: (context, snapshot) {
+                  if(snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator(),);
+                  }
+                  if(snapshot.hasData) {
+                    if(snapshot.data ==  null) {
+                      return const Center(child: Text("Trống"),);
+                    }else {
+                      notes = snapshot.data!;
+                      filteredList = notes;
+                      return ListView.builder(
+                          itemCount: filteredList.length,
+                          shrinkWrap: true,
+                          physics: const BouncingScrollPhysics(),
+                          itemBuilder: (context, index){
+                            return Card(
+                              color: Colors.orange[200],
+                              margin: const EdgeInsets.all(5),
+                              child: ListTile(
+                                title: Text(filteredList[index].title!),
+                                subtitle: Text(filteredList[index].description!),
+                                trailing: SizedBox(
+                                      width: 100,
+                                      child: Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.edit),
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) => FormNote(
+                                                          selectedNote: notes[index])));
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete),
+                                            onPressed: () {
+                                              setState(() {
+                                                noteController.deleteNote(notes[index]);
+                                                messageSackBar(context, "Xoá thành công");
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                              ),
+                            );
+                      });
+                    }
+                  }
+                  if(snapshot.hasError) {
+                    return Center(child: Text("Lỗi ${snapshot.error}"),);
+                  }
+                  return const Center(child: Text("Lỗi"));
+                }),
           ],
         ),
       ),
@@ -134,10 +151,9 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.deepOrange,
         onPressed: () {
           setState(() {
-            print("thêm");
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const FormNote()));
-            refreshNotes();
+            // refreshNotes();
           });
         },
         tooltip: 'Tạo ghi chú',
@@ -147,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
         alignment: Alignment.center,
         height: MediaQuery.of(context).size.height * 1 / 20,
         color: Colors.orange,
-        child: Text("Tổng số ghi chú: ${notes.length.toString()}"),
+        child: Text("${notes.length.toString()} ghi chú"),
       ),
     );
   }

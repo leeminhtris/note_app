@@ -25,5 +25,5 @@ abstract class NoteDao {
 
   //tìm kiếm theo tiêu đề
   @Query("SELECT * FROM Note WHERE title LIKE :title")
-  Future<List<Note>> findByTitle(String title);
+  Future<List<Note>> search(String title);
 }
