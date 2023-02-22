@@ -12,45 +12,38 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   TextEditingController searchText = TextEditingController();
   NoteController noteController = NoteController();
   List<Note> notes = [];
-  List<Note> filteredList = [];
-
-  // void refreshNotes() async {
-  //   final data = await noteController.getALlNotes();
-  //   setState(() {
-  //     if (data != null) {
-  //       notes = data;
-  //       print(notes.toString());
-  //       isLoading = false;
-  //     } else {
-  //       throw Exception("Lỗi data == null");
-  //     }
-  //   });
-  // }
+  var items = [];
 
   void refresh() async {
-    var data = await noteController.getALlNotes();
-    if(data != null) {
-      notes = data;
-    }
+    noteController.getALlNotes().then((value) => {
+          setState(() {
+            notes = value;
+            items = notes;
+          })
+        });
   }
 
   @override
   void initState() {
     super.initState();
     refresh();
-    // refreshNotes();
   }
 
-  void filterList(value) {
+  void search(String keyword) {
     setState(() {
-      filteredList = notes
-          .where(
-              (text) => text.title!.toLowerCase().contains(value.toLowerCase()))
-          .toList();
+      if (keyword != null) {
+        items = notes
+            .where((element) =>
+                element.title!.toLowerCase().contains(keyword.toLowerCase()))
+            .toList();
+      } else {
+        setState(() {
+          items = notes;
+        });
+      }
     });
   }
 
@@ -61,89 +54,11 @@ class _MyHomePageState extends State<MyHomePage> {
         padding: const EdgeInsets.all(20),
         child: ListView(
           children: [
-            const Text(
-              "Ghi Chú",
-              style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            buildTitle(),
             const SizedBox(height: 10),
-            TextFormField(
-              decoration: const InputDecoration(
-                hintText: "Tìm kiếm",
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  filterList(value);
-                });
-                print(value);
-              },
-            ),
+            buildSearchField(),
             const SizedBox(height: 10),
-            FutureBuilder(
-                future: noteController.getALlNotes(),
-                builder: (context, snapshot) {
-                  if(snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator(),);
-                  }
-                  if(snapshot.hasData) {
-                    if(snapshot.data ==  null) {
-                      return const Center(child: Text("Trống"),);
-                    }else {
-                      notes = snapshot.data!;
-                      filteredList = notes;
-                      return ListView.builder(
-                          itemCount: filteredList.length,
-                          shrinkWrap: true,
-                          physics: const BouncingScrollPhysics(),
-                          itemBuilder: (context, index){
-                            return Card(
-                              color: Colors.orange[200],
-                              margin: const EdgeInsets.all(5),
-                              child: ListTile(
-                                title: Text(filteredList[index].title!),
-                                subtitle: Text(filteredList[index].description!),
-                                trailing: SizedBox(
-                                      width: 100,
-                                      child: Row(
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.edit),
-                                            onPressed: () {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) => FormNote(
-                                                          selectedNote: notes[index])));
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.delete),
-                                            onPressed: () {
-                                              setState(() {
-                                                noteController.deleteNote(notes[index]);
-                                                messageSackBar(context, "Xoá thành công");
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                              ),
-                            );
-                      });
-                    }
-                  }
-                  if(snapshot.hasError) {
-                    return Center(child: Text("Lỗi ${snapshot.error}"),);
-                  }
-                  return const Center(child: Text("Lỗi"));
-                }),
+            buildBodyPage(),
           ],
         ),
       ),
@@ -153,7 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
           setState(() {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const FormNote()));
-            // refreshNotes();
           });
         },
         tooltip: 'Tạo ghi chú',
@@ -166,5 +80,75 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Text("${notes.length.toString()} ghi chú"),
       ),
     );
+  }
+
+  Widget buildTitle() {
+    return const Text(
+      "Ghi Chú",
+      style: TextStyle(
+        fontSize: 40,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget buildSearchField() {
+    return TextFormField(
+      decoration: const InputDecoration(
+        hintText: "Tìm kiếm",
+        prefixIcon: Icon(Icons.search),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+      ),
+      onChanged: (value) {
+        setState(() {
+          search(value);
+        });
+      },
+    );
+  }
+
+  Widget buildBodyPage() {
+    return ListView.builder(
+        itemCount: items.length,
+        shrinkWrap: true,
+        physics: const BouncingScrollPhysics(),
+        itemBuilder: (context, index) {
+          return Card(
+            color: Colors.orange[200],
+            margin: const EdgeInsets.all(5),
+            child: ListTile(
+                title: Text(items[index].title!),
+                subtitle: Text(items[index].description!),
+                trailing: SizedBox(
+                  width: 100,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      FormNote(selectedNote: items[index])));
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          setState(() {
+                            noteController.deleteNote(items[index]);
+                            refresh();
+                            messageSackBar(context, "Xoá thành công");
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                )),
+          );
+        });
   }
 }

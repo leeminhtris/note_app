@@ -45,6 +45,18 @@ class _FormNoteState extends State<FormNote> {
                   initialValue: widget.selectedNote?.title,
                   maxLines: 1,
                   decoration: const InputDecoration(hintText: "Tiêu đề"),
+                  validator: (value) {
+                    if (widget.selectedNote != null) {
+                      if (widget.selectedNote!.title == null) {
+                        return "Tiêu đề không được để trống";
+                      }
+                    } else {
+                      if (value == null) {
+                        return "Tiêu đề không được để trống";
+                      }
+                    }
+                    return null;
+                  },
                   onSaved: (value) {
                     if (widget.selectedNote != null) {
                       setState(() {
@@ -79,18 +91,25 @@ class _FormNoteState extends State<FormNote> {
         ));
   }
 
-  void save() {
+  bool validator() {
     final form = formKey.currentState;
-    //khi form gọi hàm save thì tất cả các TextFormField gọi hàm save
-    form?.save();
-    if (widget.selectedNote != null) {
-      noteController.updateNote(widget.selectedNote!);
-      messageSackBar(context, "Sửa thành công");
-    } else {
-      noteController.addNote(note);
-      messageSackBar(context, "Thêm thành công");
-      print('Note==========>$note');
+    if (form!.validate()) {
+      form.save();
+      return true;
     }
-    Navigator.pop(context);
+    return false;
+  }
+
+  void save() {
+    if (validator()) {
+      if (widget.selectedNote != null) {
+        noteController.updateNote(widget.selectedNote!);
+      } else {
+        noteController.addNote(note);
+        messageSackBar(context, "Thêm thành công");
+        print('Note==========>$note');
+      }
+      Navigator.pop(context);
+    }
   }
 }

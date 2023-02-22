@@ -153,23 +153,13 @@ class _$NoteDao extends NoteDao {
   }
 
   @override
-  Future<Note?> findById(int id) async {
-    return _queryAdapter.query('SELECT * FROM note WHERE id = ?1',
-        mapper: (Map<String, Object?> row) => Note(
-            id: row['id'] as int?,
-            title: row['title'] as String?,
-            description: row['description'] as String?),
-        arguments: [id]);
-  }
-
-  @override
-  Future<List<Note>> search(String title) async {
+  Future<List<Note>> search(String keyword) async {
     return _queryAdapter.queryList('SELECT * FROM Note WHERE title LIKE ?1',
         mapper: (Map<String, Object?> row) => Note(
             id: row['id'] as int?,
             title: row['title'] as String?,
             description: row['description'] as String?),
-        arguments: [title]);
+        arguments: [keyword]);
   }
 
   @override

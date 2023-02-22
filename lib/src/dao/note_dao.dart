@@ -7,10 +7,6 @@ abstract class NoteDao {
   @Query("SELECT * FROM Note")
   Future<List<Note>> getAllNotes();
 
-  //tìm ghi chú theo id
-  @Query("SELECT * FROM note WHERE id = :id")
-  Future<Note?> findById(int id);
-
   //thêm ghi chú
   @insert
   Future<int> addNote(Note note);
@@ -24,6 +20,6 @@ abstract class NoteDao {
   Future<void> deleteNote(Note note);
 
   //tìm kiếm theo tiêu đề
-  @Query("SELECT * FROM Note WHERE title LIKE :title")
-  Future<List<Note>> search(String title);
+  @Query("SELECT * FROM Note WHERE title LIKE :keyword")
+  Future<List<Note>> search(String keyword);
 }
