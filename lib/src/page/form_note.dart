@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:note/src/component/message.dart';
 import 'package:note/src/model/note.dart';
 
 import '../controller/note_controller.dart';
@@ -13,6 +12,8 @@ class FormNote extends StatefulWidget {
 }
 
 class _FormNoteState extends State<FormNote> {
+
+  // static final navigatorKey = GlobalKey<NavigatorState>();
   //sử dụng để truy cập form
   final formKey = GlobalKey<FormState>();
   NoteController noteController = NoteController();
@@ -22,6 +23,7 @@ class _FormNoteState extends State<FormNote> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // key: navigatorKey,
         appBar: AppBar(
           backgroundColor: Colors.orange,
           actions: [
@@ -44,6 +46,7 @@ class _FormNoteState extends State<FormNote> {
                 TextFormField(
                   initialValue: widget.selectedNote?.title,
                   maxLines: 1,
+                  autofocus: true,
                   decoration: const InputDecoration(hintText: "Tiêu đề"),
                   validator: (value) {
                     if (widget.selectedNote != null) {
@@ -91,7 +94,7 @@ class _FormNoteState extends State<FormNote> {
         ));
   }
 
-  bool validator() {
+  bool validate() {
     final form = formKey.currentState;
     if (form!.validate()) {
       form.save();
@@ -101,12 +104,11 @@ class _FormNoteState extends State<FormNote> {
   }
 
   void save() {
-    if (validator()) {
+    if (validate()) {
       if (widget.selectedNote != null) {
         noteController.updateNote(widget.selectedNote!);
       } else {
         noteController.addNote(note);
-        messageSackBar(context, "Thêm thành công");
         print('Note==========>$note');
       }
       Navigator.pop(context);

@@ -12,16 +12,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  // static final navigatorKey = GlobalKey<NavigatorState>();
   TextEditingController searchText = TextEditingController();
   NoteController noteController = NoteController();
   List<Note> notes = [];
   var items = [];
 
-  void refresh() async {
+  bool data = false;
+  void refresh() {
     noteController.getALlNotes().then((value) => {
           setState(() {
             notes = value;
             items = notes;
+            if(items.isNotEmpty) {
+              data = true;
+            }else {
+              data = false;
+            }
           })
         });
   }
@@ -34,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void search(String keyword) {
     setState(() {
-      if (keyword != null) {
+      if (keyword.isNotEmpty) {
         items = notes
             .where((element) =>
                 element.title!.toLowerCase().contains(keyword.toLowerCase()))
@@ -50,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // key: navigatorKey,
       body: Container(
         padding: const EdgeInsets.all(20),
         child: ListView(
@@ -65,10 +74,8 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepOrange,
         onPressed: () {
-          setState(() {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const FormNote()));
-          });
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const FormNote()));
         },
         tooltip: 'Tạo ghi chú',
         child: const Icon(Icons.add),
@@ -77,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
         alignment: Alignment.center,
         height: MediaQuery.of(context).size.height * 1 / 20,
         color: Colors.orange,
-        child: Text("${notes.length.toString()} ghi chú"),
+        child: Text("${items.length.toString()} ghi chú"),
       ),
     );
   }
@@ -109,8 +116,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget buildBodyPage() {
-    return ListView.builder(
+  Widget buildBodyPage() =>
+    data ? ListView.builder(
         itemCount: items.length,
         shrinkWrap: true,
         physics: const BouncingScrollPhysics(),
@@ -138,17 +145,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () {
-                          setState(() {
-                            noteController.deleteNote(items[index]);
-                            refresh();
-                            messageSackBar(context, "Xoá thành công");
-                          });
+                          noteController.deleteNote(items[index]);
+                          refresh();
+                          messageSackBar(context, "Xoá thành công");
                         },
                       ),
                     ],
                   ),
                 )),
           );
-        });
-  }
+        }) : const Center(child: Text("Trống"));
+
 }
