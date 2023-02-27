@@ -5,6 +5,5 @@ ScaffoldMessengerState messageSackBar(context, String text) {
     ..removeCurrentSnackBar()
     ..showSnackBar(SnackBar(
         content: Text(text), backgroundColor: Colors.deepOrange),
-
     );
 }

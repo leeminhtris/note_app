@@ -12,22 +12,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  // static final navigatorKey = GlobalKey<NavigatorState>();
+  //nhập vào thanh tìm kiếm
   TextEditingController searchText = TextEditingController();
   NoteController noteController = NoteController();
   List<Note> notes = [];
-  var items = [];
+  List<Note> items = [];
 
   bool data = false;
+
   void refresh() {
+    //lấy ra tất cả ghi chú
     noteController.getALlNotes().then((value) => {
           setState(() {
             notes = value;
             items = notes;
-            if(items.isNotEmpty) {
+            if (items.isNotEmpty) {
               data = true;
-            }else {
+            } else {
               data = false;
             }
           })
@@ -42,6 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void search(String keyword) {
     setState(() {
+      // nếu có nhập keyword lấy ra ghi chú vào items
       if (keyword.isNotEmpty) {
         items = notes
             .where((element) =>
@@ -82,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomSheet: Container(
         alignment: Alignment.center,
-        height: MediaQuery.of(context).size.height * 1 / 20,
+        height: MediaQuery.of(context).size.height * 1 / 15,
         color: Colors.orange,
         child: Text("${items.length.toString()} ghi chú"),
       ),
@@ -116,44 +118,47 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget buildBodyPage() =>
-    data ? ListView.builder(
-        itemCount: items.length,
-        shrinkWrap: true,
-        physics: const BouncingScrollPhysics(),
-        itemBuilder: (context, index) {
-          return Card(
-            color: Colors.orange[200],
-            margin: const EdgeInsets.all(5),
-            child: ListTile(
-                title: Text(items[index].title!),
-                subtitle: Text(items[index].description!),
-                trailing: SizedBox(
-                  width: 100,
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      FormNote(selectedNote: items[index])));
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          noteController.deleteNote(items[index]);
-                          refresh();
-                          messageSackBar(context, "Xoá thành công");
-                        },
-                      ),
-                    ],
-                  ),
-                )),
-          );
-        }) : const Center(child: Text("Trống"));
-
+  Widget buildBodyPage() => data
+      ? Container(
+          padding: const EdgeInsets.only(bottom: 50),
+          child: ListView.builder(
+              itemCount: items.length,
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              itemBuilder: (context, index) {
+                return Card(
+                  color: Colors.orange[200],
+                  margin: const EdgeInsets.all(5),
+                  child: ListTile(
+                      title: Text(items[index].title!),
+                      subtitle: Text(items[index].description!),
+                      trailing: SizedBox(
+                        width: 100,
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => FormNote(
+                                            selectedNote: items[index])));
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                noteController.deleteNote(items[index]);
+                                refresh();
+                                messageSackBar(context, "Xoá thành công");
+                              },
+                            ),
+                          ],
+                        ),
+                      )),
+                );
+              }),
+        )
+      : const Center(child: Text(""));
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:note/src/model/note.dart';
-
 import '../controller/note_controller.dart';
 
 class FormNote extends StatefulWidget {
@@ -12,7 +11,6 @@ class FormNote extends StatefulWidget {
 }
 
 class _FormNoteState extends State<FormNote> {
-
   // static final navigatorKey = GlobalKey<NavigatorState>();
   //sử dụng để truy cập form
   final formKey = GlobalKey<FormState>();
@@ -23,7 +21,7 @@ class _FormNoteState extends State<FormNote> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // key: navigatorKey,
+        // key: navigatorKey,
         appBar: AppBar(
           backgroundColor: Colors.orange,
           actions: [
@@ -48,17 +46,13 @@ class _FormNoteState extends State<FormNote> {
                   maxLines: 1,
                   autofocus: true,
                   decoration: const InputDecoration(hintText: "Tiêu đề"),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) {
-                    if (widget.selectedNote != null) {
-                      if (widget.selectedNote!.title == null) {
-                        return "Tiêu đề không được để trống";
-                      }
-                    } else {
-                      if (value == null) {
+                    if (widget.selectedNote == null) {
+                      if (value == null || value.isEmpty) {
                         return "Tiêu đề không được để trống";
                       }
                     }
-                    return null;
                   },
                   onSaved: (value) {
                     if (widget.selectedNote != null) {
