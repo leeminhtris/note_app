@@ -1,4 +1,4 @@
-
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:note/src/page/app.dart';
 
@@ -23,7 +23,11 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.deepOrange,
         visualDensity: VisualDensity.adaptivePlatformDensity,  //độ tương thích màn hình
       ),
-      home: const MyHomePage(),
+      home: AnimatedSplashScreen(
+          splash: const Text("Design by Tri Le Minh"),
+          splashTransition: SplashTransition.slideTransition,
+          nextScreen: const MyHomePage(),
+      )
     );
   }
 }
