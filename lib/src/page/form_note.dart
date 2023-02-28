@@ -22,18 +22,7 @@ class _FormNoteState extends State<FormNote> {
   Widget build(BuildContext context) {
     return Scaffold(
         // key: navigatorKey,
-        appBar: AppBar(
-          backgroundColor: Colors.orange,
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                save();
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-              child: const Text("Lưu"),
-            ),
-          ],
-        ),
+        appBar: buildAppBar(),
         body: Container(
           padding: const EdgeInsets.all(20),
           child: Form(
@@ -41,47 +30,8 @@ class _FormNoteState extends State<FormNote> {
             key: formKey,
             child: ListView(
               children: [
-                TextFormField(
-                  initialValue: widget.selectedNote?.title,
-                  maxLines: 1,
-                  autofocus: true,
-                  decoration: const InputDecoration(hintText: "Tiêu đề"),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
-                    if (widget.selectedNote == null) {
-                      if (value == null || value.isEmpty) {
-                        return "Tiêu đề không được để trống";
-                      }
-                    }
-                  },
-                  onSaved: (value) {
-                    if (widget.selectedNote != null) {
-                      setState(() {
-                        widget.selectedNote!.title = value;
-                      });
-                    } else {
-                      setState(() {
-                        note.title = value;
-                      });
-                    }
-                  },
-                ),
-                TextFormField(
-                  initialValue: widget.selectedNote?.description,
-                  maxLines: null,
-                  decoration: const InputDecoration(hintText: "Nội dung"),
-                  onSaved: (value) {
-                    if (widget.selectedNote != null) {
-                      setState(() {
-                        widget.selectedNote!.description = value;
-                      });
-                    } else {
-                      setState(() {
-                        note.description = value;
-                      });
-                    }
-                  },
-                ),
+                titleInput(),
+                descInput(),
               ],
             ),
           ),
@@ -103,9 +53,71 @@ class _FormNoteState extends State<FormNote> {
         noteController.updateNote(widget.selectedNote!);
       } else {
         noteController.addNote(note);
-        print('Note==========>$note');
+        print('add==========>$note');
       }
-      Navigator.pop(context);
+      Navigator.pop(context, noteController.getALlNotes());
     }
+  }
+
+  AppBar buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.orange,
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            save();
+          },
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+          child: const Text("Lưu"),
+        ),
+      ],
+    );
+  }
+
+  Widget titleInput() {
+    return TextFormField(
+      initialValue: widget.selectedNote?.title,
+      maxLines: 1,
+      autofocus: true,
+      decoration: const InputDecoration(hintText: "Tiêu đề"),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) {
+        if (widget.selectedNote == null) {
+          if (value == null || value.isEmpty) {
+            return "Tiêu đề không được để trống";
+          }
+        }
+      },
+      onSaved: (value) {
+        if (widget.selectedNote != null) {
+          setState(() {
+            widget.selectedNote!.title = value;
+          });
+        } else {
+          setState(() {
+            note.title = value;
+          });
+        }
+      },
+    );
+  }
+
+  Widget descInput() {
+    return TextFormField(
+      initialValue: widget.selectedNote?.description,
+      maxLines: null,
+      decoration: const InputDecoration(hintText: "Nội dung"),
+      onSaved: (value) {
+        if (widget.selectedNote != null) {
+          setState(() {
+            widget.selectedNote!.description = value;
+          });
+        } else {
+          setState(() {
+            note.description = value;
+          });
+        }
+      },
+    );
   }
 }

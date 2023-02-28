@@ -19,8 +19,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Note> items = [];
 
   bool data = false;
-
-  void refresh() {
+  void refresh() async {
     //lấy ra tất cả ghi chú
     noteController.getALlNotes().then((value) => {
           setState(() {
@@ -38,6 +37,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+      refresh();
+
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
     refresh();
   }
 
@@ -121,44 +128,61 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget buildBodyPage() => data
       ? Container(
           padding: const EdgeInsets.only(bottom: 50),
-          child: ListView.builder(
-              itemCount: items.length,
-              shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              itemBuilder: (context, index) {
-                return Card(
-                  color: Colors.orange[200],
-                  margin: const EdgeInsets.all(5),
-                  child: ListTile(
-                      title: Text(items[index].title!),
-                      subtitle: Text(items[index].description!),
-                      trailing: SizedBox(
-                        width: 100,
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => FormNote(
-                                            selectedNote: items[index])));
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                noteController.deleteNote(items[index]);
-                                refresh();
-                                messageSackBar(context, "Xoá thành công");
-                              },
-                            ),
-                          ],
-                        ),
-                      )),
+          child: FutureBuilder<List<Note>>(
+            future: noteController.getALlNotes(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Center(
+                  child: Text("lỗi"),
                 );
-              }),
+              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                return ListView.builder(
+                  itemCount: items.length,
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    return Card(
+                      color: Colors.orange[200],
+                      margin: const EdgeInsets.all(5),
+                      child: ListTile(
+                        title: Text(items[index].title!),
+                        subtitle: Text(items[index].description!),
+                        trailing: SizedBox(
+                          width: 100,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => FormNote(
+                                              selectedNote: items[index])));
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  noteController.deleteNote(items[index]);
+                                  refresh();
+                                  messageSackBar(context, "Xoá thành công");
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+            },
+          ),
         )
       : const Center(child: Text(""));
 }
